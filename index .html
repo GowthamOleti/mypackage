@@ -105,6 +105,27 @@
       border-radius: 12px;
     }
 
+    .coupon {
+      margin: 1rem auto;
+      padding: 0.8rem 1rem;
+      text-align: center;
+      border: 2px dashed #6e6e73;
+      border-radius: 12px;
+      font-size: 1rem;
+      color: #6e6e73;
+      cursor: pointer;
+    }
+
+    .coupon input {
+      border: none;
+      outline: none;
+      width: 80%;
+      font-size: 1rem;
+      text-align: center;
+      background: none;
+      color: #333;
+    }
+
     .send-button {
       display: block;
       margin: 1rem auto;
@@ -215,6 +236,10 @@
     Total Package: ₹<span id="total-price">0</span>
   </div>
 
+  <div class="coupon">
+    <input type="text" id="coupon-code" placeholder="Apply Coupon Code">
+  </div>
+
   <a href="#" class="send-button" id="send-button">Send</a>
 </main>
 
@@ -226,8 +251,10 @@
   const checkboxes = document.querySelectorAll('.checkbox');
   const totalPriceEl = document.getElementById('total-price');
   const sendButton = document.getElementById('send-button');
+  const couponCodeInput = document.getElementById('coupon-code');
 
   let totalPrice = 0;
+  let discountApplied = false;
 
   checkboxes.forEach(checkbox => {
     checkbox.addEventListener('change', () => {
@@ -239,11 +266,27 @@
         totalPrice -= price;
       }
 
-      totalPriceEl.textContent = totalPrice;
-
+      updatePrice();
       updateSendLink();
     });
   });
+
+  couponCodeInput.addEventListener('input', () => {
+    if (couponCodeInput.value === 'gow8803' && !discountApplied) {
+      totalPrice = Math.round(totalPrice * 0.8);
+      discountApplied = true;
+    } else if (couponCodeInput.value !== 'gow8803' && discountApplied) {
+      discountApplied = false;
+      totalPrice = recalculateTotal();
+    }
+
+    updatePrice();
+    updateSendLink();
+  });
+
+  function updatePrice() {
+    totalPriceEl.textContent = totalPrice;
+  }
 
   function updateSendLink() {
     const selectedServices = Array.from(checkboxes)
@@ -254,7 +297,14 @@
     const mailto = `mailto:oletigowtham8803@gmail.com?subject=Selected Project Services&body=Total Price: ₹${totalPrice}%0ASelected Services: ${selectedServices}`;
     sendButton.href = mailto;
   }
+
+  function recalculateTotal() {
+    return Array.from(checkboxes)
+      .filter(checkbox => checkbox.checked)
+      .reduce((sum, checkbox) => sum + parseInt(checkbox.value, 10), 0);
+  }
 </script>
 
 </body>
 </html>
+
